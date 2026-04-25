@@ -48,16 +48,15 @@ is enough.
 
 ### 1. Probes against your own combat logs
 
-Point the tools at a directory of combat-log files via the
-`COMBATLOG_GLOB` env var:
+The probes take one or more glob patterns as positional arguments:
 
 ```sh
-export COMBATLOG_GLOB='/path/to/Logs/*CombatLog.txt'
+LOGS='/path/to/Logs/*CombatLog.txt'
 
-python3 crushing_probe.py
-python3 glancing_probe.py
-python3 fierce_blow_probe.py
-python3 parry_haste_detect_v3.py
+python3 crushing_probe.py     "$LOGS"
+python3 glancing_probe.py     "$LOGS"
+python3 fierce_blow_probe.py  "$LOGS"
+python3 parry_haste_detect_v3.py "$LOGS"
 ```
 
 Each probe prints a one-screen summary table.
@@ -65,7 +64,7 @@ Each probe prints a one-screen summary table.
 ### 2. Scrape ascensionlogs.gg for an independent dataset
 
 ```sh
-python3 scrape_ascensionlogs.py --max-reports 20
+python3 scrape_ascensionlogs.py --max-reports 50 --max-encounters 500
 ```
 
 Cached JSON lands in `ascensionlogs_data/` and is reused on subsequent runs.
@@ -73,13 +72,18 @@ Rate limit is 1 second per request by default; override with `SCRAPE_RATE_S`.
 
 ### 3. Render charts
 
-After both data sources are populated:
+The chart scripts read the local-log location from the `COMBATLOG_GLOB`
+env var (default: `./*WoWCombatLog.txt`):
 
 ```sh
+export COMBATLOG_GLOB='/path/to/Logs/*CombatLog.txt'
+
+# only needs local logs
+python3 generate_parry_charts.py
+
+# needs both local logs AND a populated ascensionlogs_data/ cache
 python3 regen_all_charts.py
 ```
-
-Writes every chart in `charts/` with a consistent provenance footer.
 
 ## Methodology — parry-haste, briefly
 
@@ -109,6 +113,3 @@ boundary filter and the no-next-swing exclusion.
 | `per_boss_parry_haste.json`        | aggregate by boss |
 | `charts/parry_haste_*.png`         | rendered charts |
 
-## License
-
-MIT.
