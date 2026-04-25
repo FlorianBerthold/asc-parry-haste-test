@@ -8,10 +8,13 @@ from __future__ import annotations
 import datetime as dt
 import glob
 import json
+import os
 import statistics
 import sys
 from collections import defaultdict
 from pathlib import Path
+
+LOCAL_LOG_GLOB = os.environ.get('COMBATLOG_GLOB', '*WoWCombatLog.txt')
 
 sys.path.insert(0, str(Path(__file__).parent))
 from parry_haste_detect_v3 import collect, baseline_swing_time, classify
@@ -47,8 +50,8 @@ CLASS_COLOR = {
 # ============== load all data + compute provenance ==============
 
 def load_local():
-    """Bronzebeard local Combat-Log files."""
-    local_paths = sorted(glob.glob('/srv/add01/wow-ascension/Logs/*WoWCombatLog.txt'))
+    """Local combat-log files (set COMBATLOG_GLOB env var to override)."""
+    local_paths = sorted(glob.glob(LOCAL_LOG_GLOB))
     pairs = collect(local_paths)
     rows = []
     all_mid = []

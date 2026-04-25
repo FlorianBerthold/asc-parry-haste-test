@@ -8,11 +8,12 @@ Charts written to ./charts/:
   - parry_haste_per_boss.png       : median ratio per (mob, player), sorted
   - parry_haste_cdf.png            : cumulative distribution function
 
-Re-run any time after fresh logs land. Reads logs from
-/srv/add01/wow-ascension/Logs/.
+Re-run any time after fresh logs land. Reads logs matching the
+COMBATLOG_GLOB env var (default: ./*WoWCombatLog.txt).
 """
 from __future__ import annotations
 import glob
+import os
 import statistics
 import sys
 from collections import defaultdict
@@ -31,8 +32,9 @@ OUT = Path(__file__).parent / 'charts'
 OUT.mkdir(exist_ok=True)
 
 
-def collect_data(log_glob='/srv/add01/wow-ascension/Logs/*WoWCombatLog.txt',
-                 min_parries=3, boundary_ms=200):
+def collect_data(log_glob=None, min_parries=3, boundary_ms=200):
+    if log_glob is None:
+        log_glob = os.environ.get('COMBATLOG_GLOB', '*WoWCombatLog.txt')
     paths = sorted(glob.glob(log_glob))
     print(f'scanning {len(paths)} logs ...')
     pairs = collect(paths)
